@@ -56,6 +56,7 @@ fun CardListScreen(onEdit: (Int) -> Unit, onCreate: () -> Unit, vm: CardViewMode
                     }
                 }
             }
+
         }
     }
 }
