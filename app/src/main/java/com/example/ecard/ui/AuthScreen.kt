@@ -1,46 +1,42 @@
+package com.example.ecard.ui
 
-package com.example.ecardnarwhal.ui
-
-import android.content.Context
-import android.content.SharedPreferences
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.material3.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKeys
 
 @Composable
-fun AuthScreen(onAuth: ()->Unit) {
-    val ctx = LocalContext.current
-    val prefs = remember { createEncryptedPrefs(ctx) }
-    var pin by remember { mutableStateOf("") }
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.Center) {
-        Text("Введите PIN", style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(8.dp))
-        OutlinedTextField(value = pin, onValueChange = { pin = it }, label = { Text("PIN") })
-        Spacer(Modifier.height(8.dp))
-        Button(onClick = {
-            val stored = prefs.getString("pin", null)
-            if (stored == null) {
-                prefs.edit().putString("pin", pin).apply()
-                onAuth()
-            } else if (stored == pin) {
-                onAuth()
-            }
-        }) { Text("Войти") }
-    }
-}
+fun AuthScreen(onAuthenticated: () -> Unit) {
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<String?>(null) }
 
-fun createEncryptedPrefs(ctx: Context): SharedPreferences {
-    val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-    return EncryptedSharedPreferences.create(
-        "ecard_prefs",
-        masterKeyAlias,
-        ctx,
-        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-    )
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Войти", style = MaterialTheme.typography.headlineMedium)
+            Spacer(Modifier.height(16.dp))
+            OutlinedTextField(value = username, onValueChange = { username = it }, label = { Text("Логин") })
+            Spacer(Modifier.height(8.dp))
+            OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Пароль") })
+            Spacer(Modifier.height(16.dp))
+            Button(onClick = {
+                // простая заглушка авторизации
+                if (username == "user" && password == "1234") {
+                    error = null
+                    onAuthenticated()
+                } else {
+                    error = "Неверные учетные данные. Подсказка: user / 1234"
+                }
+            }) {
+                Text("Войти")
+            }
+            error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 8.dp)) }
+        }
+    }
 }

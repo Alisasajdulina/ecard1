@@ -1,152 +1,93 @@
-package com.example.ecardnarwhal.ui
+package com.example.ecard.ui
 
 import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.material3.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
-import com.example.ecardnarwhal.data.CardEntity
-import com.example.ecardnarwhal.data.CardRepository
-import com.example.ecardnarwhal.utils.RenderCard
-import com.example.ecardnarwhal.utils.ExportUtils
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.ecard.data.AppDatabase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import androidx.compose.runtime.saveable.rememberSaveable
+import com.example.ecard.data.CardEntity
 import kotlinx.coroutines.launch
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarHost
 
 @Composable
-fun CardEditorScreen(cardId: Long, onSaved: () -> Unit, vm: CardViewModel = viewModel()) {
-    val ctx = LocalContext.current
-    val repo = CardRepository(AppDatabase.get(ctx).cardDao())
-    var name by remember { mutableStateOf("") }
-    var company by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var color by remember { mutableStateOf("#FFFFFF") }
-    var logoUri by remember { mutableStateOf<Uri?>(null) }
+fun CardEditorScreen(
+    viewModel: CardViewModel,
+    cardId: Long,
+    onBack: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    var editing by remember { mutableStateOf<CardEntity?>(null) }
 
-    val pickLogo = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        if (uri != null) logoUri = uri
+    LaunchedEffect(cardId) {
+        if (cardId != 0L) {
+            editing = viewModel.getById(cardId)
+        } else {
+            editing = CardEntity(name = "", company = null, phone = null, email = null)
+        }
     }
 
-    Column(Modifier
-        .fillMaxSize()
-        .padding(12.dp)) {
-        Card(modifier = Modifier
-            .fillMaxWidth()
-            .height(180.dp), shape = RoundedCornerShape(8.dp)) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(
-                        androidx.compose.ui.graphics.Color(
-                            android.graphics.Color.parseColor(color)
-                        )
-                    )
-            ) {
-                Column(Modifier.padding(12.dp)) {
-                    Text(
-                        name.ifEmpty { "Имя Фамилия" },
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    Text(company, style = MaterialTheme.typography.bodyMedium)
-                    if (logoUri != null) {
-                        Image(
-                            painter = rememberAsyncImagePainter(logoUri),
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp)
-                        )
-                    }
-                }
-            }
-        }
-        val keyboardController = LocalSoftwareKeyboardController.current
+    val name = rememberSaveable { mutableStateOf(editing?.name ?: "") }
+    val company = rememberSaveable { mutableStateOf(editing?.company ?: "") }
+    val phone = rememberSaveable { mutableStateOf(editing?.phone ?: "") }
+    val email = rememberSaveable { mutableStateOf(editing?.email ?: "") }
+    val color = rememberSaveable { mutableStateOf(editing?.colorHex ?: "#FFFFFF") }
+    val logoUriStr = rememberSaveable { mutableStateOf(editing?.logoUri) }
 
-        Spacer(Modifier.height(8.dp))
-        OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Имя") })
-        OutlinedTextField(
-            value = company,
-            onValueChange = { company = it },
-            label = { Text("Компания") },
-            keyboardOptions = KeyboardOptions.Default,
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    keyboardController?.hide() // скрыть клавиатуру при нажатии Done
-                }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(if (cardId == 0L) "Создать" else "Редактировать") },
+                navigationIcon = { IconButton(onClick = onBack) { Text("<") } }
             )
-        )
-        OutlinedTextField(
-            value = phone,
-            onValueChange = { phone = it },
-            label = { Text("Телефон") })
-        OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") })
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
+        Column(modifier = Modifier.padding(padding).padding(16.dp)) {
+            OutlinedTextField(value = name.value, onValueChange = { name.value = it }, label = { Text("ФИО") })
+            Spacer(Modifier.height(8.dp))
+            OutlinedTextField(value = company.value, onValueChange = { company.value = it }, label = { Text("Компания") })
+            Spacer(Modifier.height(8.dp))
+            OutlinedTextField(value = phone.value, onValueChange = { phone.value = it }, label = { Text("Телефон") })
+            Spacer(Modifier.height(8.dp))
+            OutlinedTextField(value = email.value, onValueChange = { email.value = it }, label = { Text("Email") })
+            Spacer(Modifier.height(8.dp))
+            OutlinedTextField(value = color.value, onValueChange = { color.value = it }, label = { Text("Цвет (HEX)") })
+            Spacer(Modifier.height(12.dp))
 
-        Spacer(Modifier.height(8.dp))
-        Button(onClick = { pickLogo.launch("image/*") }) { Text("Импортировать логотип") }
-        Spacer(Modifier.height(8.dp))
+            Row {
+                Button(onClick = {
+                    // save
+                    val card = editing?.copy(
+                        name = name.value.trim(),
+                        company = company.value.trim().ifEmpty { null },
+                        phone = phone.value.trim().ifEmpty { null },
+                        email = email.value.trim().ifEmpty { null },
+                        colorHex = color.value.trim().ifEmpty { "#FFFFFF" },
+                        logoUri = logoUriStr.value
+                    ) ?: CardEntity(name = name.value.trim(), company = company.value.trim().ifEmpty { null }, phone = phone.value.trim().ifEmpty { null }, email = email.value.trim().ifEmpty { null }, colorHex = color.value, logoUri = logoUriStr.value)
 
-        Row {
-            Button(onClick = {
-                val entity = CardEntity(
-                    name = name,
-                    company = company,
-                    phone = phone,
-                    email = email,
-                    colorHex = color,
-                    logoUri = logoUri?.toString()
-                )
-                CoroutineScope(Dispatchers.IO).launch { repo.insert(entity) }
-                onSaved()
-            }) { Text("Сохранить") }
+                    scope.launch {
+                        viewModel.createOrUpdate(card) { result ->
+                            result.fold(onSuccess = {
+                                scope.launch { snackbarHostState.showSnackbar("Сохранено") }
+                                onBack()
+                            }, onFailure = {
+                                scope.launch { snackbarHostState.showSnackbar("Ошибка: ${it.localizedMessage}") }
+                            })
+                        }
+                    }
+                }) { Text("Сохранить") }
 
-            Spacer(Modifier.width(8.dp))
-            Button(onClick = {
-                // Export PNG using MediaStore in background
-                val card = RenderCard.CardData(
-                    name = name,
-                    company = company,
-                    phone = phone,
-                    email = email,
-                    colorHex = color,
-                    logoBitmap = null
-                )
-                CoroutineScope(Dispatchers.IO).launch {
-                    val uri =
-                        ExportUtils.saveBitmapToGallery(ctx, RenderCard.createBitmap(card), "ecard")
-                    // show simple feedback via Toast must be done on main thread - left as exercise
-                }
-            }) { Text("Экспорт PNG") }
+                Spacer(Modifier.width(12.dp))
 
-            Spacer(Modifier.width(8.dp))
-            Button(onClick = {
-                val card = RenderCard.CardData(
-                    name = name,
-                    company = company,
-                    phone = phone,
-                    email = email,
-                    colorHex = color,
-                    logoBitmap = null
-                )
-                CoroutineScope(Dispatchers.IO).launch {
-                    val res = ExportUtils.savePdfToDownloads(
-                        ctx,
-                        RenderCard.createPdfBytes(card),
-                        "ecard"
-                    )
-                }
-            }) { Text("Экспорт PDF") }
+                Button(onClick = {
+                    // экспорт в PNG/PDF можно вызвать здесь; оставлю хуки для ExportUtils
+                }) { Text("Экспорт") }
+            }
         }
     }
 }

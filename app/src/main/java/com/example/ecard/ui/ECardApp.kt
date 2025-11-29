@@ -1,26 +1,46 @@
 package com.example.ecard.ui
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.compose.composable
-import com.example.ecardnarwhal.ui.AuthScreen
-import com.example.ecardnarwhal.ui.CardEditorScreen
-import com.example.ecardnarwhal.ui.CardListScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material3.*
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.navigation.compose.*
+import com.example.ecard.ui.CardListScreen
+import com.example.ecard.ui.CardEditorScreen
+import com.example.ecard.ui.AuthScreen
 
 @Composable
 fun ECardApp() {
     val nav = rememberNavController()
+    val vm: CardViewModel = viewModel()
+
     NavHost(navController = nav, startDestination = "auth") {
-        composable("auth") { AuthScreen(onAuth = { nav.navigate("list") }) }
+        composable("auth") {
+            AuthScreen(
+                onAuthenticated = { nav.navigate("list") }
+            )
+        }
+
         composable("list") {
             CardListScreen(
-                onCreate = { nav.navigate("edit/-1") },
-                onEdit = { id -> nav.navigate("edit/$id") })
+                viewModel = vm,
+                onCreateNew = { nav.navigate("edit/0") },
+                onEdit = { id -> nav.navigate("edit/$id") }
+            )
         }
-        composable("edit/{id}") { back ->
-            val id = back.arguments?.getString("id")?.toLong() ?: -1L
-            CardEditorScreen(cardId = id, onSaved = { nav.popBackStack() })
+
+        composable(
+            "edit/{id}",
+            arguments = listOf(navArgument("id") { defaultValue = 0L })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")?.toLongOrNull() ?: 0L
+            CardEditorScreen(
+                viewModel = vm,
+                cardId = id,
+                onBack = { nav.popBackStack() }
+            )
         }
     }
 }

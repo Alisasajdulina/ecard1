@@ -1,23 +1,65 @@
-
-package com.example.ecardnarwhal.ui
+package com.example.ecard.ui
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecard.data.AppDatabase
-import com.example.ecardnarwhal.data.CardEntity
-import com.example.ecardnarwhal.data.CardRepository
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
+import com.example.ecard.data.CardEntity
+import com.example.ecard.data.CardRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class CardViewModel(app: Application): AndroidViewModel(app) {
-    private val repo = CardRepository(AppDatabase.get(app).cardDao())
-    val cards = repo.getAll().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+sealed class UiState {
+    object Loading: UiState()
+    data class Success(val cards: List<CardEntity>): UiState()
+    data class Error(val message: String): UiState()
+}
 
-    fun add(card: CardEntity) = viewModelScope.launch { repo.insert(card) }
-    fun getById(id: Long, block: (CardEntity?)->Unit) = viewModelScope.launch {
-        block(repo.getById(id))
+class CardViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repo: CardRepository
+    private val _uiState = MutableStateFlow<UiState>(UiState.Loading)
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    init {
+        val dao = AppDatabase.getInstance(application).cardDao()
+        repo = CardRepository(dao)
+
+        // observe database
+        viewModelScope.launch {
+            repo.observeAll()
+                .catch { e ->
+                    _uiState.value = UiState.Error(e.localizedMessage ?: "unknown")
+                }
+                .collect { list -> _uiState.value = UiState.Success(list) }
+        }
     }
-    fun delete(card: CardEntity) = viewModelScope.launch { repo.delete(card) }
+
+    fun createOrUpdate(card: CardEntity, onResult: (Result<Long>) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val id = withContext(Dispatchers.IO) { repo.createOrUpdate(card) }
+                onResult(Result.success(id))
+            } catch (t: Throwable) {
+                onResult(Result.failure(t))
+            }
+        }
+    }
+
+    fun delete(card: CardEntity, onResult: (Result<Unit>) -> Unit) {
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) { repo.delete(card) }
+                onResult(Result.success(Unit))
+            } catch (t: Throwable) {
+                onResult(Result.failure(t))
+            }
+        }
+    }
+
+    suspend fun getById(id: Long): CardEntity? = withContext(Dispatchers.IO) {
+        repo.getById(id)
+    }
 }
