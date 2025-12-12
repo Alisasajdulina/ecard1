@@ -22,20 +22,52 @@ class CardViewModel(application: Application) : AndroidViewModel(application) {
     private val repo: CardRepository
     private val _uiState = MutableStateFlow<UiState>(UiState.Loading)
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+    
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+    
+    private val _selectedCategory = MutableStateFlow<String?>(null)
+    val selectedCategory: StateFlow<String?> = _selectedCategory.asStateFlow()
 
     init {
         val dao = AppDatabase.getInstance(application).cardDao()
         repo = CardRepository(dao)
 
-        // observe database
+        // observe database with search
         viewModelScope.launch {
-            repo.observeAll()
+            combine(
+                searchQuery,
+                selectedCategory
+            ) { query, category ->
+                when {
+                    !query.isBlank() -> repo.search(query)
+                    !category.isNullOrBlank() -> repo.getByCategory(category)
+                    else -> repo.observeAll()
+                }
+            }.flatMapLatest { it }
                 .catch { e ->
                     _uiState.value = UiState.Error(e.localizedMessage ?: "unknown")
                 }
                 .collect { list -> _uiState.value = UiState.Success(list) }
         }
     }
+    
+    fun setSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+    
+    fun setCategory(category: String?) {
+        _selectedCategory.value = category
+    }
+    
+    fun clearFilters() {
+        _searchQuery.value = ""
+        _selectedCategory.value = null
+    }
+    
+    suspend fun getAllCategories(): List<String> = repo.getAllCategories()
+    
+    suspend fun incrementViewCount(cardId: Long) = repo.incrementViewCount(cardId)
 
     fun createOrUpdate(card: CardEntity, onResult: (Result<Long>) -> Unit) {
         viewModelScope.launch {

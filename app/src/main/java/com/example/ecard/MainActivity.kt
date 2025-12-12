@@ -10,7 +10,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ECardTheme {
+            ECardTheme(darkTheme = com.example.ecard.theme.ThemeState.isDarkTheme) {
                 ECardApp()
             }
         }

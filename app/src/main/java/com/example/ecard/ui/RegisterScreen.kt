@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -24,11 +25,13 @@ import com.example.ecard.theme.Pink
 import com.example.ecard.theme.PinkDark
 
 @Composable
-fun AuthScreen(onAuthenticated: () -> Unit, onRegisterClick: () -> Unit = {}) {
-    var username by remember { mutableStateOf("") }
+fun RegisterScreen(onRegistered: () -> Unit, onBack: () -> Unit) {
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
     var showPassword by remember { mutableStateOf(false) }
+    var showConfirmPassword by remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -58,12 +61,12 @@ fun AuthScreen(onAuthenticated: () -> Unit, onRegisterClick: () -> Unit = {}) {
                 )
             }
             Spacer(Modifier.height(16.dp))
-            Text("Добро пожаловать", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-            Text("Войдите в свой аккаунт", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+            Text("Создать аккаунт", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+            Text("Заполните форму для регистрации", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
             Spacer(Modifier.height(24.dp))
             OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
+                value = email,
+                onValueChange = { email = it },
                 label = { Text("Email") },
                 leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
@@ -87,23 +90,37 @@ fun AuthScreen(onAuthenticated: () -> Unit, onRegisterClick: () -> Unit = {}) {
                 shape = RoundedCornerShape(16.dp),
                 visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation()
             )
-            Spacer(Modifier.height(8.dp))
-            Box(
+            Spacer(Modifier.height(12.dp))
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                label = { Text("Подтвердите пароль") },
+                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                trailingIcon = {
+                    IconButton(onClick = { showConfirmPassword = !showConfirmPassword }) {
+                        Icon(
+                            if (showConfirmPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                            contentDescription = "Показать пароль"
+                        )
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                TextButton(onClick = { /* TODO: forgot pass */ }) {
-                    Text("Забыли пароль?")
-                }
-            }
+                shape = RoundedCornerShape(16.dp),
+                visualTransformation = if (showConfirmPassword) VisualTransformation.None else PasswordVisualTransformation()
+            )
             Spacer(Modifier.height(4.dp))
-            GradientButton("Войти") {
-                // простая заглушка авторизации
-                if (username == "user" && password == "1234") {
-                    error = null
-                    onAuthenticated()
+            GradientButton("Зарегистрироваться") {
+                // простая заглушка регистрации
+                if (email.isBlank() || password.isBlank()) {
+                    error = "Заполните все поля"
+                } else if (password != confirmPassword) {
+                    error = "Пароли не совпадают"
+                } else if (password.length < 4) {
+                    error = "Пароль должен быть не менее 4 символов"
                 } else {
-                    error = "Неверные учетные данные. Подсказка: user / 1234"
+                    error = null
+                    // В реальном приложении здесь была бы регистрация
+                    onRegistered()
                 }
             }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 8.dp)) }
@@ -113,14 +130,15 @@ fun AuthScreen(onAuthenticated: () -> Unit, onRegisterClick: () -> Unit = {}) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Нет аккаунта? ",
+                    "Уже есть аккаунт? ",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
-                TextButton(onClick = onRegisterClick) {
-                    Text("Зарегистрироваться", color = PinkDark)
+                TextButton(onClick = onBack) {
+                    Text("Войти", color = PinkDark)
                 }
             }
         }
     }
 }
+

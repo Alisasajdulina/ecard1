@@ -66,6 +66,7 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.2.1")
     implementation("androidx.compose.ui:ui-tooling-preview:1.6.2")
     debugImplementation("androidx.compose.ui:ui-tooling:1.6.2")
+    implementation("androidx.compose.material:material-icons-extended:1.6.2")
 
     // Lifecycle & Navigation
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -87,5 +88,6 @@ dependencies {
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
 }

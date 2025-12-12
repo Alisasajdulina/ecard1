@@ -1,5 +1,5 @@
 
-package com.example.ecardnarwhal.utils
+package com.example.ecard.utils
 
 import android.graphics.*
 import android.graphics.pdf.PdfDocument
@@ -22,20 +22,47 @@ object RenderCard {
         val paint = Paint().apply { style = Paint.Style.FILL; color = Color.parseColor(card.colorHex) }
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
 
-        val textPaint = Paint().apply { color = Color.BLACK; textSize = 64f; isAntiAlias = true }
-        canvas.drawText(card.name, 40f, 100f, textPaint)
-        textPaint.textSize = 48f
-        canvas.drawText(card.company, 40f, 180f, textPaint)
+        // Определяем цвет текста в зависимости от яркости фона
+        val bgColor = Color.parseColor(card.colorHex)
+        val brightness = (Color.red(bgColor) * 0.299 + Color.green(bgColor) * 0.587 + Color.blue(bgColor) * 0.114)
+        val textColor = if (brightness > 128) Color.BLACK else Color.WHITE
+        
+        val textPaint = Paint().apply { 
+            color = textColor
+            textSize = 64f
+            isAntiAlias = true
+            typeface = android.graphics.Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        }
+        var yPos = 120f
+        canvas.drawText(card.name, 40f, yPos, textPaint)
+        
+        if (card.company.isNotBlank()) {
+            textPaint.textSize = 48f
+            textPaint.typeface = android.graphics.Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            yPos += 70f
+            canvas.drawText(card.company, 40f, yPos, textPaint)
+        }
+        
         textPaint.textSize = 40f
-        canvas.drawText(card.phone, 40f, 260f, textPaint)
-        canvas.drawText(card.email, 40f, 320f, textPaint)
-
-        card.logoBitmap?.let {
-            val logo = Bitmap.createScaledBitmap(it, 180, 180, true)
-            canvas.drawBitmap(logo, (width - 220).toFloat(), 40f, null)
+        yPos += 60f
+        if (card.phone.isNotBlank()) {
+            canvas.drawText(card.phone, 40f, yPos, textPaint)
+            yPos += 50f
+        }
+        if (card.email.isNotBlank()) {
+            canvas.drawText(card.email, 40f, yPos, textPaint)
         }
 
-        val qr = generateQr("${'$'}{card.name};${'$'}{card.company};${'$'}{card.phone};${'$'}{card.email}", 300, 300)
+        card.logoBitmap?.let {
+            val logoSize = 200
+            val logo = Bitmap.createScaledBitmap(it, logoSize, logoSize, true)
+            val xPos = (width - logoSize - 40).toFloat()
+            val yPosLogo = 40f
+            canvas.drawBitmap(logo, xPos, yPosLogo, Paint().apply { isAntiAlias = true })
+        }
+
+        val qrText = "${card.name};${card.company};${card.phone};${card.email}"
+        val qr = generateQr(qrText, 300, 300)
         canvas.drawBitmap(qr, (width - 360).toFloat(), (height - 360).toFloat(), null)
 
         return bmp
@@ -61,7 +88,8 @@ object RenderCard {
             canvas.drawBitmap(logo, (pageWidth - 160).toFloat(), 40f, null)
         }
 
-        val qr = generateQr("${'$'}{card.name};${'$'}{card.company};${'$'}{card.phone};${'$'}{card.email}", 200, 200)
+        val qrText = "${card.name};${card.company};${card.phone};${card.email}"
+        val qr = generateQr(qrText, 200, 200)
         canvas.drawBitmap(qr, (pageWidth - 260).toFloat(), (pageHeight - 260).toFloat(), null)
 
         document.finishPage(page)

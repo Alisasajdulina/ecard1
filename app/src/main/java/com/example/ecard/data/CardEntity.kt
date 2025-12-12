@@ -17,5 +17,17 @@ data class CardEntity(
     // локальный Uri к логотипу (например content://...) в String
     var logoUri: String? = null,
     // дата создания/обновления
-    var updatedAt: Long = System.currentTimeMillis()
+    var updatedAt: Long = System.currentTimeMillis(),
+    // Шаблон визитки
+    var templateId: String? = null,
+    // Категория/тег
+    var category: String? = null,
+    // Теги (через запятую)
+    var tags: String? = null,
+    // Статистика просмотров
+    var viewCount: Int = 0,
+    // Последний просмотр
+    var lastViewed: Long? = null,
+    // Является ли основной визиткой
+    var isPrimary: Boolean = false
 )
