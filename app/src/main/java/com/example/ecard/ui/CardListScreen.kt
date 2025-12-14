@@ -31,6 +31,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.graphics.Color
+<<<<<<< HEAD
 import androidx.compose.ui.platform.LocalContext
 import com.example.ecard.utils.ExportUtils
 import com.example.ecard.utils.ImagePicker
@@ -38,6 +39,10 @@ import com.example.ecard.utils.RenderCard
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlinx.coroutines.launch
+=======
+import java.text.SimpleDateFormat
+import java.util.*
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,7 +57,10 @@ fun CardListScreen(
     val searchQuery by viewModel.searchQuery.collectAsState()
     val selectedCategory by viewModel.selectedCategory.collectAsState()
     val scope = rememberCoroutineScope()
+<<<<<<< HEAD
     val snackbarHostState = remember { SnackbarHostState() }
+=======
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
     var showSearchBar by remember { mutableStateOf(false) }
     var categories by remember { mutableStateOf<List<String>>(emptyList()) }
 
@@ -62,7 +70,10 @@ fun CardListScreen(
 
     Scaffold(
         topBar = {
+<<<<<<< HEAD
 
+=======
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
             CenterAlignedTopAppBar(
                 title = { Text("Ваши визитки") },
                 actions = {
@@ -86,8 +97,12 @@ fun CardListScreen(
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Создать визитку")
             }
+<<<<<<< HEAD
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
+=======
+        }
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
     ) { padding ->
         Column(
             modifier = Modifier
@@ -156,6 +171,7 @@ fun CardListScreen(
                                         card = card,
                                         onClick = { onEdit(card.id) },
                                         onDelete = {
+<<<<<<< HEAD
                                             viewModel.delete(card) { result ->
                                                 scope.launch {
                                                     result.fold(
@@ -171,6 +187,11 @@ fun CardListScreen(
                                         },
                                         onShowQR = { onShowQR(card.id) },
                                         snackbarHostState = snackbarHostState
+=======
+                                            scope.launch { viewModel.delete(card) {} }
+                                        },
+                                        onShowQR = { onShowQR(card.id) }
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
                                     )
                                     Spacer(Modifier.height(8.dp))
                                 }
@@ -184,6 +205,7 @@ fun CardListScreen(
 }
 
 @Composable
+<<<<<<< HEAD
 fun CardItem(
     card: CardEntity, 
     onClick: () -> Unit, 
@@ -193,6 +215,9 @@ fun CardItem(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+=======
+fun CardItem(card: CardEntity, onClick: () -> Unit, onDelete: () -> Unit, onShowQR: () -> Unit) {
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
     val df = remember { SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()) }
     val created = remember(card.updatedAt) { df.format(Date(card.updatedAt)) }
     val bgColor = remember(card.colorHex) {
@@ -240,6 +265,7 @@ fun CardItem(
         Spacer(Modifier.height(12.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
             Button(
+<<<<<<< HEAD
                 onClick = {
                     scope.launch {
                         val vcard = ExportUtils.createVCard(
@@ -258,6 +284,9 @@ fun CardItem(
                         }
                     }
                 },
+=======
+                onClick = { /* TODO export vCard */ },
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(containerColor = Pink)
             ) {
@@ -273,6 +302,7 @@ fun CardItem(
                 Icon(Icons.Default.QrCode, contentDescription = "QR-код")
             }
             OutlinedButton(
+<<<<<<< HEAD
                 onClick = {
                     scope.launch {
                         try {
@@ -294,6 +324,9 @@ fun CardItem(
                         }
                     }
                 },
+=======
+                onClick = { /* TODO share */ },
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
                 modifier = Modifier.size(48.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {

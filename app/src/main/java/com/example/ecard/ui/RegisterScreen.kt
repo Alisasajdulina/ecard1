@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.example.ecard.theme.Pink
 import com.example.ecard.theme.PinkDark
+<<<<<<< HEAD
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
@@ -31,15 +32,23 @@ fun RegisterScreen(
     onBack: () -> Unit,
     viewModel: AuthViewModel = viewModel()
 ) {
+=======
+
+@Composable
+fun RegisterScreen(onRegistered: () -> Unit, onBack: () -> Unit) {
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
     var showPassword by remember { mutableStateOf(false) }
     var showConfirmPassword by remember { mutableStateOf(false) }
+<<<<<<< HEAD
     var isLoading by remember { mutableStateOf(false) }
     
     val authState by viewModel.authState.collectAsState()
+=======
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -117,6 +126,7 @@ fun RegisterScreen(
                 visualTransformation = if (showConfirmPassword) VisualTransformation.None else PasswordVisualTransformation()
             )
             Spacer(Modifier.height(4.dp))
+<<<<<<< HEAD
             GradientButton(
                 text = if (isLoading) "Регистрация..." else "Зарегистрироваться",
                 onClick = {
@@ -168,6 +178,23 @@ fun RegisterScreen(
                     modifier = Modifier.padding(top = 8.dp)
                 ) 
             }
+=======
+            GradientButton("Зарегистрироваться") {
+                // простая заглушка регистрации
+                if (email.isBlank() || password.isBlank()) {
+                    error = "Заполните все поля"
+                } else if (password != confirmPassword) {
+                    error = "Пароли не совпадают"
+                } else if (password.length < 4) {
+                    error = "Пароль должен быть не менее 4 символов"
+                } else {
+                    error = null
+                    // В реальном приложении здесь была бы регистрация
+                    onRegistered()
+                }
+            }
+            error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 8.dp)) }
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
             Spacer(Modifier.height(16.dp))
             Row(
                 horizontalArrangement = Arrangement.Center,

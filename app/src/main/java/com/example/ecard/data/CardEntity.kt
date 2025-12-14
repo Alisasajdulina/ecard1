@@ -29,7 +29,11 @@ data class CardEntity(
     // Последний просмотр
     var lastViewed: Long? = null,
     // Является ли основной визиткой
+<<<<<<< HEAD
     var isPrimary: Boolean = false,
     // ID пользователя, которому принадлежит визитка
     var userId: Long? = null
+=======
+    var isPrimary: Boolean = false
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
 )

@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.example.ecard.theme.Pink
 import com.example.ecard.theme.PinkDark
+<<<<<<< HEAD
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
@@ -31,13 +32,21 @@ fun AuthScreen(
     onForgotPassword: () -> Unit = {},
     viewModel: AuthViewModel = viewModel()
 ) {
+=======
+
+@Composable
+fun AuthScreen(onAuthenticated: () -> Unit, onRegisterClick: () -> Unit = {}) {
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
     var showPassword by remember { mutableStateOf(false) }
+<<<<<<< HEAD
     var isLoading by remember { mutableStateOf(false) }
     
     val authState by viewModel.authState.collectAsState()
+=======
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -101,11 +110,16 @@ fun AuthScreen(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.CenterEnd
             ) {
+<<<<<<< HEAD
                 TextButton(onClick = { onForgotPassword() }) {
+=======
+                TextButton(onClick = { /* TODO: forgot pass */ }) {
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
                     Text("Забыли пароль?")
                 }
             }
             Spacer(Modifier.height(4.dp))
+<<<<<<< HEAD
             GradientButton(
                 text = if (isLoading) "Вход..." else "Войти",
                 onClick = {
@@ -167,6 +181,32 @@ fun AuthScreen(
                     Text("Зарегистрироваться", color = PinkDark)
                 }
             }
+=======
+            GradientButton("Войти") {
+                // простая заглушка авторизации
+                if (username == "user" && password == "1234") {
+                    error = null
+                    onAuthenticated()
+                } else {
+                    error = "Неверные учетные данные. Подсказка: user / 1234"
+                }
+            }
+            error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 8.dp)) }
+            Spacer(Modifier.height(16.dp))
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Нет аккаунта? ",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+                TextButton(onClick = onRegisterClick) {
+                    Text("Зарегистрироваться", color = PinkDark)
+                }
+            }
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
         }
     }
 }

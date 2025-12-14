@@ -38,10 +38,14 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.rememberAsyncImagePainter
 import androidx.compose.material.icons.filled.AddPhotoAlternate
+<<<<<<< HEAD
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.ui.text.font.FontWeight
 import com.example.ecard.utils.CardScanner
 import android.graphics.Bitmap
+=======
+import androidx.compose.ui.text.font.FontWeight
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,6 +59,7 @@ fun CardEditorScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
+<<<<<<< HEAD
     var editing by remember { mutableStateOf<CardEntity?>(null) }
 
     val name = rememberSaveable(cardId) { mutableStateOf("") }
@@ -149,6 +154,43 @@ fun CardEditorScreen(
 
     val previewColor = remember(color.value) {
         runCatching {
+=======
+    var editing by rememberSaveable(cardId) { mutableStateOf<CardEntity?>(null) }
+
+    val name = rememberSaveable(cardId) { mutableStateOf("") }
+    val company = rememberSaveable(cardId) { mutableStateOf("") }
+    val phone = rememberSaveable(cardId) { mutableStateOf("") }
+    val email = rememberSaveable(cardId) { mutableStateOf("") }
+    val color = rememberSaveable(cardId) { mutableStateOf("#FFE8F2") }
+    val photoUri = rememberSaveable(cardId) { mutableStateOf<Uri?>(null) }
+    val templateId = rememberSaveable(cardId) { mutableStateOf<String?>(null) }
+    val category = rememberSaveable(cardId) { mutableStateOf("") }
+    val tags = rememberSaveable(cardId) { mutableStateOf("") }
+    val palette = listOf("#FF4D94", "#FF6FA8", "#FFA3C8", "#FFD6E9", "#FFE8F2", "#FFB347", "#F4C430")
+    
+    val imagePickerLauncher = rememberImagePickerLauncher { uri ->
+        photoUri.value = uri
+    }
+
+    LaunchedEffect(cardId) {
+        val loaded = if (cardId != 0L) viewModel.getById(cardId) else CardEntity(name = "", company = null, phone = null, email = null)
+        editing = loaded
+        loaded?.let {
+            name.value = it.name
+            company.value = it.company.orEmpty()
+            phone.value = it.phone.orEmpty()
+            email.value = it.email.orEmpty()
+            color.value = it.colorHex
+            photoUri.value = it.logoUri?.let { uriString -> Uri.parse(uriString) }
+            templateId.value = it.templateId
+            category.value = it.category.orEmpty()
+            tags.value = it.tags.orEmpty()
+        }
+    }
+
+    val previewColor = remember(color.value) {
+        runCatching { 
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
             androidx.compose.ui.graphics.Color(AndroidColor.parseColor(color.value))
         }.getOrElse { Pink }
     }
@@ -196,7 +238,11 @@ fun CardEditorScreen(
                             Text(phone.value.ifBlank { "+7 (___) ___-__-__" }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimary)
                             Text(email.value.ifBlank { "email@example.com" }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f))
                         }
+<<<<<<< HEAD
                         photoUri?.let { uri ->
+=======
+                        photoUri.value?.let { uri ->
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
                             Image(
                                 painter = rememberAsyncImagePainter(uri),
                                 contentDescription = "Фото профиля",
@@ -209,6 +255,7 @@ fun CardEditorScreen(
                     }
                 }
             }
+<<<<<<< HEAD
 
             // Секция сканирования визитки
             Card(
@@ -330,6 +377,74 @@ fun CardEditorScreen(
                 shape = MaterialTheme.shapes.large
             )
 
+=======
+            
+            // Секция загрузки фото
+            Text("Фото профиля", style = MaterialTheme.typography.titleSmall, color = PinkDark)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                photoUri.value?.let { uri ->
+                    Image(
+                        painter = rememberAsyncImagePainter(uri),
+                        contentDescription = "Фото",
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { imagePickerLauncher.launch("image/*") },
+                        contentScale = ContentScale.Crop
+                    )
+                } ?: Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable { imagePickerLauncher.launch("image/*") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.AddPhotoAlternate, contentDescription = "Добавить фото", tint = PinkDark, modifier = Modifier.size(40.dp))
+                }
+                OutlinedButton(onClick = { imagePickerLauncher.launch("image/*") }) {
+                    Icon(Icons.Default.AddPhotoAlternate, contentDescription = null)
+                    Spacer(Modifier.width(4.dp))
+                    Text("Выбрать фото")
+                }
+            }
+
+            OutlinedTextField(
+                value = name.value,
+                onValueChange = { name.value = it },
+                label = { Text("Имя") },
+                leadingIcon = { Icon(Icons.Default.Badge, contentDescription = null) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large
+            )
+            OutlinedTextField(
+                value = company.value,
+                onValueChange = { company.value = it },
+                label = { Text("Компания / Должность") },
+                leadingIcon = { Icon(Icons.Default.BusinessCenter, contentDescription = null) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large
+            )
+            OutlinedTextField(
+                value = phone.value,
+                onValueChange = { phone.value = it },
+                label = { Text("Телефон") },
+                leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large
+            )
+            OutlinedTextField(
+                value = email.value,
+                onValueChange = { email.value = it },
+                label = { Text("Email") },
+                leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large
+            )
+
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
             Text("Стиль визитки", style = MaterialTheme.typography.titleSmall, color = PinkDark)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -352,7 +467,11 @@ fun CardEditorScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.large
             )
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
             OutlinedTextField(
                 value = category.value,
                 onValueChange = { category.value = it },
@@ -361,7 +480,11 @@ fun CardEditorScreen(
                 shape = MaterialTheme.shapes.large,
                 placeholder = { Text("Работа, Личное, Друзья...") }
             )
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
             OutlinedTextField(
                 value = tags.value,
                 onValueChange = { tags.value = it },
@@ -380,7 +503,11 @@ fun CardEditorScreen(
                             phone = phone.value.trim().ifEmpty { null },
                             email = email.value.trim().ifEmpty { null },
                             colorHex = color.value.trim().ifEmpty { "#FFE8F2" },
+<<<<<<< HEAD
                             logoUri = photoUriString.value,
+=======
+                            logoUri = photoUri.value?.toString(),
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
                             templateId = templateId.value,
                             category = category.value.trim().ifEmpty { null },
                             tags = tags.value.trim().ifEmpty { null }
@@ -390,7 +517,11 @@ fun CardEditorScreen(
                             phone = phone.value.trim().ifEmpty { null },
                             email = email.value.trim().ifEmpty { null },
                             colorHex = color.value.trim().ifEmpty { "#FFE8F2" },
+<<<<<<< HEAD
                             logoUri = photoUriString.value,
+=======
+                            logoUri = photoUri.value?.toString(),
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
                             templateId = templateId.value,
                             category = category.value.trim().ifEmpty { null },
                             tags = tags.value.trim().ifEmpty { null }
@@ -412,8 +543,13 @@ fun CardEditorScreen(
 
                 OutlinedButton(
                     onClick = {
+<<<<<<< HEAD
                         val photoBitmap = photoUri?.let {
                             ImagePicker.getBitmapFromUri(context, it)
+=======
+                        val photoBitmap = photoUri.value?.let { 
+                            ImagePicker.getBitmapFromUri(context, it) 
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
                         }
                         val card = RenderCard.CardData(
                             name = name.value.ifBlank { "E-Card" },
@@ -432,7 +568,11 @@ fun CardEditorScreen(
                         }
                     }
                 ) { Text("Экспорт PNG") }
+<<<<<<< HEAD
 
+=======
+                
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
                 OutlinedButton(
                     onClick = {
                         val vcard = ExportUtils.createVCard(
@@ -449,7 +589,11 @@ fun CardEditorScreen(
                         }
                     }
                 ) { Text("Экспорт vCard") }
+<<<<<<< HEAD
 
+=======
+                
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
                 OutlinedButton(
                     onClick = {
                         val card = editing?.copy(

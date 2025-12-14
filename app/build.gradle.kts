@@ -89,8 +89,11 @@ dependencies {
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+<<<<<<< HEAD
 
     // ML Kit Text Recognition
     implementation("com.google.mlkit:text-recognition:16.0.1")
+=======
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
 
 }

@@ -20,7 +20,10 @@ import com.google.zxing.MultiFormatWriter
 import android.graphics.Color as AndroidColor
 import androidx.compose.ui.platform.LocalContext
 
+<<<<<<< HEAD
 @OptIn(ExperimentalMaterial3Api::class)
+=======
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
 @Composable
 fun QRCodeScreen(
     card: CardEntity,

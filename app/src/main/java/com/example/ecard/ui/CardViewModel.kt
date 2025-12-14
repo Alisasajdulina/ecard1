@@ -38,6 +38,7 @@ class CardViewModel(application: Application) : AndroidViewModel(application) {
 
         // observe database with search
         viewModelScope.launch {
+<<<<<<< HEAD
             val userId = authManager.getCurrentUserId()
             if (userId != null) {
                 combine(
@@ -57,6 +58,22 @@ class CardViewModel(application: Application) : AndroidViewModel(application) {
             } else {
                 _uiState.value = UiState.Success(emptyList())
             }
+=======
+            combine(
+                searchQuery,
+                selectedCategory
+            ) { query, category ->
+                when {
+                    !query.isBlank() -> repo.search(query)
+                    !category.isNullOrBlank() -> repo.getByCategory(category)
+                    else -> repo.observeAll()
+                }
+            }.flatMapLatest { it }
+                .catch { e ->
+                    _uiState.value = UiState.Error(e.localizedMessage ?: "unknown")
+                }
+                .collect { list -> _uiState.value = UiState.Success(list) }
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
         }
     }
     
@@ -73,6 +90,7 @@ class CardViewModel(application: Application) : AndroidViewModel(application) {
         _selectedCategory.value = null
     }
     
+<<<<<<< HEAD
     suspend fun getAllCategories(): List<String> {
         val userId = authManager.getCurrentUserId() ?: return emptyList()
         return repo.getAllCategories(userId)
@@ -82,6 +100,11 @@ class CardViewModel(application: Application) : AndroidViewModel(application) {
         val userId = authManager.getCurrentUserId() ?: return
         repo.incrementViewCount(cardId, userId)
     }
+=======
+    suspend fun getAllCategories(): List<String> = repo.getAllCategories()
+    
+    suspend fun incrementViewCount(cardId: Long) = repo.incrementViewCount(cardId)
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
 
     fun createOrUpdate(card: CardEntity, onResult: (Result<Long>) -> Unit) {
         viewModelScope.launch {

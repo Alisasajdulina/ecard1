@@ -24,7 +24,10 @@ fun GradientButton(
 ) {
     Button(
         onClick = onClick,
+<<<<<<< HEAD
         enabled = enabled,
+=======
+>>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
         colors = ButtonDefaults.buttonColors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
         contentPadding = PaddingValues(),
         modifier = Modifier
