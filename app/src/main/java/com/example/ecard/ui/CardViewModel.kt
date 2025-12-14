@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.ecard.data.AppDatabase
 import com.example.ecard.data.CardEntity
 import com.example.ecard.data.CardRepository
+import com.example.ecard.utils.AuthManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -20,27 +21,77 @@ sealed class UiState {
 class CardViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repo: CardRepository
+    private val authManager: AuthManager
     private val _uiState = MutableStateFlow<UiState>(UiState.Loading)
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+    
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+    
+    private val _selectedCategory = MutableStateFlow<String?>(null)
+    val selectedCategory: StateFlow<String?> = _selectedCategory.asStateFlow()
 
     init {
         val dao = AppDatabase.getInstance(application).cardDao()
         repo = CardRepository(dao)
+        authManager = AuthManager(application)
 
-        // observe database
+        // observe database with search
         viewModelScope.launch {
-            repo.observeAll()
-                .catch { e ->
-                    _uiState.value = UiState.Error(e.localizedMessage ?: "unknown")
-                }
-                .collect { list -> _uiState.value = UiState.Success(list) }
+            val userId = authManager.getCurrentUserId()
+            if (userId != null) {
+                combine(
+                    searchQuery,
+                    selectedCategory
+                ) { query, category ->
+                    when {
+                        !query.isBlank() -> repo.search(query, userId)
+                        !category.isNullOrBlank() -> repo.getByCategory(category, userId)
+                        else -> repo.observeAll(userId)
+                    }
+                }.flatMapLatest { it }
+                    .catch { e ->
+                        _uiState.value = UiState.Error(e.localizedMessage ?: "unknown")
+                    }
+                    .collect { list -> _uiState.value = UiState.Success(list) }
+            } else {
+                _uiState.value = UiState.Success(emptyList())
+            }
         }
+    }
+    
+    fun setSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+    
+    fun setCategory(category: String?) {
+        _selectedCategory.value = category
+    }
+    
+    fun clearFilters() {
+        _searchQuery.value = ""
+        _selectedCategory.value = null
+    }
+    
+    suspend fun getAllCategories(): List<String> {
+        val userId = authManager.getCurrentUserId() ?: return emptyList()
+        return repo.getAllCategories(userId)
+    }
+    
+    suspend fun incrementViewCount(cardId: Long) {
+        val userId = authManager.getCurrentUserId() ?: return
+        repo.incrementViewCount(cardId, userId)
     }
 
     fun createOrUpdate(card: CardEntity, onResult: (Result<Long>) -> Unit) {
         viewModelScope.launch {
             try {
-                val id = withContext(Dispatchers.IO) { repo.createOrUpdate(card) }
+                val userId = authManager.getCurrentUserId()
+                if (userId == null) {
+                    onResult(Result.failure(Exception("Пользователь не авторизован")))
+                    return@launch
+                }
+                val id = withContext(Dispatchers.IO) { repo.createOrUpdate(card, userId) }
                 onResult(Result.success(id))
             } catch (t: Throwable) {
                 onResult(Result.failure(t))
@@ -60,6 +111,7 @@ class CardViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     suspend fun getById(id: Long): CardEntity? = withContext(Dispatchers.IO) {
-        repo.getById(id)
+        val userId = authManager.getCurrentUserId() ?: return@withContext null
+        repo.getById(id, userId)
     }
 }
