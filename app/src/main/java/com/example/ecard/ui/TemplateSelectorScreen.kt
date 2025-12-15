@@ -1,9 +1,6 @@
 package com.example.ecard.ui
 
-<<<<<<< HEAD
 import androidx.compose.foundation.background
-=======
->>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -21,11 +18,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import com.example.ecard.theme.PinkDark
+import androidx.compose.foundation.BorderStroke
 
-<<<<<<< HEAD
 @OptIn(ExperimentalMaterial3Api::class)
-=======
->>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
 @Composable
 fun TemplateSelectorScreen(
     selectedTemplateId: String?,
@@ -68,10 +63,16 @@ fun TemplateCard(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val gradientColors = template.gradientColors.map { 
+    val gradientColors = template.gradientColors.map {
         Color(android.graphics.Color.parseColor(it))
     }
-    
+
+    val textColor = if (template.id == "minimal_white") {
+        Color.Black
+    } else {
+        Color.White
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -82,7 +83,7 @@ fun TemplateCard(
             defaultElevation = if (isSelected) 8.dp else 4.dp
         ),
         border = if (isSelected) {
-            androidx.compose.foundation.BorderStroke(3.dp, PinkDark)
+            BorderStroke(3.dp, PinkDark)
         } else null
     ) {
         Box(
@@ -99,55 +100,27 @@ fun TemplateCard(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-<<<<<<< HEAD
-                    val textColor = if (template.id == "minimal_white") {
-                        Color.Black
-                    } else {
-                        Color.White
-                    }
                     Text(
                         template.name,
                         style = MaterialTheme.typography.titleMedium,
                         color = textColor
-=======
-                    Text(
-                        template.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.White
->>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
                     )
                     Text(
                         template.description,
                         style = MaterialTheme.typography.bodySmall,
-<<<<<<< HEAD
                         color = textColor.copy(alpha = 0.9f)
-=======
-                        color = Color.White.copy(alpha = 0.9f)
->>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
                     )
                 }
-                
+
                 if (isSelected) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
                     ) {
-<<<<<<< HEAD
-                        val iconColor = if (template.id == "minimal_white") {
-                            Color.Black
-                        } else {
-                            Color.White
-                        }
                         Icon(
                             Icons.Default.Check,
                             contentDescription = "Выбрано",
-                            tint = iconColor,
-=======
-                        Icon(
-                            Icons.Default.Check,
-                            contentDescription = "Выбрано",
-                            tint = Color.White,
->>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
+                            tint = textColor,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -157,3 +130,28 @@ fun TemplateCard(
     }
 }
 
+// Пример определения CardTemplate и CardTemplates
+data class CardTemplate(
+    val id: String,
+    val name: String,
+    val description: String,
+    val gradientColors: List<String>
+)
+
+object CardTemplates {
+    val templates = listOf(
+        CardTemplate(
+            id = "minimal_white",
+            name = "Минимализм",
+            description = "Белый фон, черный текст",
+            gradientColors = listOf("#FFFFFF", "#F5F5F5")
+        ),
+        CardTemplate(
+            id = "pink_gradient",
+            name = "Розовый градиент",
+            description = "Нежный розовый градиент",
+            gradientColors = listOf("#FFE8F2", "#FFA3C8")
+        )
+        // Добавьте другие шаблоны по мере необходимости
+    )
+}

@@ -10,7 +10,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
-<<<<<<< HEAD
 import androidx.compose.material.icons.filled.Logout
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ecard.theme.ThemeState
@@ -23,20 +22,9 @@ fun SettingsScreen(
 ) {
     val isDarkTheme = ThemeState.isDarkTheme
     val authVm: AuthViewModel = viewModel()
-    
+
     Scaffold(
         topBar = {
-
-=======
-import com.example.ecard.theme.ThemeState
-
-@Composable
-fun SettingsScreen(onBack: () -> Unit) {
-    val isDarkTheme = ThemeState.isDarkTheme
-    
-    Scaffold(
-        topBar = {
->>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
             CenterAlignedTopAppBar(
                 title = { Text("Настройки") },
                 navigationIcon = {
@@ -81,8 +69,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                     }
                 }
             }
-<<<<<<< HEAD
-            
+
             Card(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -103,9 +90,6 @@ fun SettingsScreen(onBack: () -> Unit) {
                     Text("Выйти из аккаунта")
                 }
             }
-=======
->>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
         }
     }
 }
-

@@ -10,13 +10,13 @@ object ContactUtils {
     fun saveToContacts(context: Context, card: CardEntity): Boolean {
         return try {
             val values = ContentValues().apply {
-<<<<<<< HEAD
+
                 put(ContactsContract.RawContacts.ACCOUNT_TYPE, null as String?)
                 put(ContactsContract.RawContacts.ACCOUNT_NAME, null as String?)
-=======
+
                 put(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
                 put(ContactsContract.RawContacts.ACCOUNT_NAME, null)
->>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
+
             }
             
             val uri = context.contentResolver.insert(ContactsContract.RawContacts.CONTENT_URI, values)

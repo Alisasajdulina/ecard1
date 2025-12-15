@@ -2,7 +2,6 @@ package com.example.ecard.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.*
@@ -19,10 +18,10 @@ fun ECardApp() {
     val nav = rememberNavController()
     val vm: CardViewModel = viewModel()
     val authVm: AuthViewModel = viewModel()
-    
+
     // Проверяем, авторизован ли пользователь при запуске
     val startDestination = if (authVm.isLoggedIn()) "list" else "auth"
-    
+
     LaunchedEffect(Unit) {
         if (authVm.isLoggedIn()) {
             nav.navigate("list") {
@@ -35,12 +34,8 @@ fun ECardApp() {
         composable("auth") {
             AuthScreen(
                 onAuthenticated = { nav.navigate("list") },
-<<<<<<< HEAD
                 onRegisterClick = { nav.navigate("register") },
                 onForgotPassword = { nav.navigate("forgot_password") }
-=======
-                onRegisterClick = { nav.navigate("register") }
->>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
             )
         }
 
@@ -48,7 +43,6 @@ fun ECardApp() {
             RegisterScreen(
                 onRegistered = { nav.navigate("list") },
                 onBack = { nav.popBackStack() }
-<<<<<<< HEAD
             )
         }
 
@@ -56,8 +50,6 @@ fun ECardApp() {
             ForgotPasswordScreen(
                 onBack = { nav.popBackStack() },
                 onPasswordReset = { nav.navigate("auth") }
-=======
->>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
             )
         }
 
@@ -70,9 +62,8 @@ fun ECardApp() {
                 onSettings = { nav.navigate("settings") }
             )
         }
-        
+
         composable("settings") {
-<<<<<<< HEAD
             SettingsScreen(
                 onBack = { nav.popBackStack() },
                 onLogout = {
@@ -81,23 +72,14 @@ fun ECardApp() {
                     }
                 }
             )
-=======
-            SettingsScreen(onBack = { nav.popBackStack() })
->>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
         }
 
         composable("templates") {
             TemplateSelectorScreen(
                 selectedTemplateId = null,
                 onTemplateSelected = { template ->
-<<<<<<< HEAD
-                    // Сохраняем выбранный шаблон в savedStateHandle текущего экрана
                     nav.currentBackStackEntry?.savedStateHandle?.set("template", template.id)
                     nav.navigate("edit/0")
-=======
-                    // Сохраняем выбранный шаблон и переходим к редактированию
-                    nav.navigate("edit/0?template=${template.id}")
->>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
                 },
                 onBack = { nav.popBackStack() }
             )
@@ -108,9 +90,9 @@ fun ECardApp() {
             arguments = listOf(navArgument("id") { type = NavType.LongType })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getLong("id") ?: 0L
-<<<<<<< HEAD
-            // Извлекаем template из savedStateHandle текущего экрана (установлен на предыдущем экране)
-            val template = remember { 
+
+            // Извлекаем template из savedStateHandle текущего экрана
+            val template = remember {
                 backStackEntry.savedStateHandle.get<String>("template")
             }
             // Очищаем template после использования
@@ -119,24 +101,11 @@ fun ECardApp() {
                     backStackEntry.savedStateHandle.remove<String>("template")
                 }
             }
-=======
->>>>>>> e42ed9d4007788e848c2d149ffb1921f84be32d4
+
             CardEditorScreen(
                 viewModel = vm,
                 cardId = id,
                 initialTemplateId = template?.takeIf { it.isNotBlank() },
-                onBack = { nav.popBackStack() }
-            )
-        }
-
-        composable(
-            route = "qr/{id}",
-            arguments = listOf(navArgument("id") { type = NavType.LongType })
-        ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getLong("id") ?: 0L
-            QRCodeScreenWrapper(
-                viewModel = vm,
-                cardId = id,
                 onBack = { nav.popBackStack() }
             )
         }
